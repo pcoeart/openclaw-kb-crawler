@@ -1,0 +1,21 @@
+name: Crawl OpenClaw Community
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 crawler.py
+      - name: Commit results
+        run: |
+          git config user.name "KB Crawler"
+          git config user.email "kb@openclaw.local"
+          git add output/ 2>/dev/null || true
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "crawl: $(date -I)" && git push; fi
